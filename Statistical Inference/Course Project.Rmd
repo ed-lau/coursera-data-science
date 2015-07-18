@@ -1,0 +1,80 @@
+---
+output: html_document
+---
+# Simulation Exercise for the Exponential Distribution
+## Author: Edward Lau
+
+### Overview: I am going to report on a simulation exercise and inferential data analysis. The first part will examine how the exponential distribution behaves under simulation. The second part will analyze the ToothGrowth data in the R dataset package.
+
+## Part 1: Exponential distribution simulation
+
+The following code will do 1000 simulations of random exponential distribution with lambda = 0.2
+```{r}
+sim <- 1000
+means = NULL
+vars = NULL
+for (i in 1: sim){
+        means <- c(means, mean(rexp(40,0.2)))
+        vars <- c(vars, var(rexp(40,0.2)))
+        }
+```
+
+The histogram of the simulation result is below:
+```{r}
+hist(means)
+```
+
+###Question 1: The mean of the simulated values:
+```{r}
+mean(means)
+```
+which compares quite well to the theoretical value of 1/0.2 = 5.
+
+###Question 2: The standard deviation of the distribution:
+```{r}
+hist(vars^0.5)
+mean(vars^0.5)
+```
+Hence the variance of the simulation is about (1/0.2)^2 ~ 25; and the standard deviation ~5, which compares quite well to the theoretical value of 1/0.2 = 5.
+
+###Question 3: Normal distribution?
+```{r}
+quantile(means)
+quantile(rnorm(1000,mean=mean(means), sd=sd(means)))
+```
+It seems like the quantiles of the two distributions are quite comparable...
+
+## Part 2: Inference
+This will load the ToothGrowth dataset, which examines the effect of Vitamin C on tooth growth in guinea pigs. len = length of teeth for 10 guinea pigs; supp = OC or VC delivery methods (orange juice or ascorbic acid); dose = dose level
+
+###Question 1: Load the ToothGrowth data and perform basic exploratory data analyses
+```{r}
+library(datasets)
+library(dplyr)
+library(ggplot2)
+glimpse(ToothGrowth)
+qplot(len, dose, data = ToothGrowth, facets = .~supp)
+```
+Conclusion: it looks like there are increases in tooth length by doses of OJ and VC. 
+
+###Question 2: Summarizing the data by dose and supp.
+```{r}
+group_by(ToothGrowth, supp, dose) %>% summarize(mean = mean(len))
+```
+
+###Question 3: Compare dose and supplement delivery method using a t test
+```{r}
+OJdata_0.5 <-filter(ToothGrowth, supp=="OJ", dose == 0.5)
+VCdata_0.5 <-filter(ToothGrowth, supp=="VC", dose == 0.5)
+t.test(OJdata_0.5$len,VCdata_0.5$len)
+
+OJdata_1.0 <-filter(ToothGrowth, supp=="OJ", dose == 1.0)
+VCdata_1.0 <-filter(ToothGrowth, supp=="VC", dose == 1.0)
+t.test(OJdata_1.0$len,VCdata_1.0$len)
+
+OJdata_2.0 <-filter(ToothGrowth, supp=="OJ", dose == 2.0)
+VCdata_2.0 <-filter(ToothGrowth, supp=="VC", dose == 2.0)
+t.test(OJdata_2.0$len,VCdata_2.0$len)
+```
+Conclusion: it appears that there is a significant difference in tooth length when given low doses (0.5 and 1.0) of vitamin C through orange juice and through ascorbic acids, but this significance is no longer there at high doses (2.0)
+
