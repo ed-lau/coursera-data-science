@@ -1,0 +1,54 @@
+Effect of Severe Weather Events on Population Health and Economy
+====================================================================
+
+##Synopsis##
+
+Storms are a major cause of public health and economic concern. This report aims to explore which type of weather events are most harmful with respect to population health and with respect to economic consequences. It makes use of the U.S. National Oceanic and Atmospheric Administration's storm database, which keeps track of major storms and weather events in the United States, such as when or where storms occur, as well as any estimates of financial and human costs accompanying storms and weather events.
+
+### Loading and Processing the Raw Data ###
+
+A dataset in the form of comma-separated-value file was obtained from the course website, which contains the U.S. National Oceanic and Atmospheric Administration's storm database.
+
+### Reading the storm data ###
+
+```{r, echo=TRUE, cache=TRUE}
+require(dplyr)
+require(ggplot2)
+require(utils)
+setwd("/Users/edwardlau/Documents/Ping Lab/R Projects/coursera-data-science/Reproducible Research/Project 2/")
+
+data <- read.csv("repdata-data-StormData.csv.bz2")
+```
+
+The following takes a glimpse of the data and report the dimension
+```{r, echo= TRUE}
+glimpse(data)
+dim(data)
+```
+
+The columns are we interested in are EVTYPE (weather event type), INJURIES, FATALITIES, and PROPDMG (property damage).
+
+##Results##
+
+### Public Health ###
+Below summarizes the summed injuries and fatalities of each types of weather events over the years, including only those above a particular threshold of injuries/ fatalities caused. We are not concerned about missing values for the questions asked, since we are only interested in knowing which events are most harmful.
+```{r, echo= TRUE}
+summary <- data %>% group_by(EVTYPE) %>% summarize(INJ = sum(INJURIES), FAT = sum(FATALITIES)) %>% filter(INJ > 1000 | FAT > 100) %>% arrange(desc(FAT))
+summary
+qplot(INJ, EVTYPE, data=summary)
+qplot(FAT, EVTYPE, data=summary)
+```
+It can be seen that tornado is by far the most severe weather events with regard to public health.
+
+### Economic consequences ###
+Below summarizes the property damage of each types of weather events, including only those above a particular threshold of damage caused.
+```{r, echo= TRUE}
+summary2 <- data %>% group_by(EVTYPE) %>% summarize(PROP = sum(PROPDMG)) %>% filter(PROP > 10000) %>% arrange(desc(PROP))
+summary2
+qplot(PROP, EVTYPE, data=summary2)
+```
+It can be seen that tornado is by far the most severe weather events with regard to economic consequences.
+
+
+##Conclusions##
+Tornados are a major cause of injuries and property damage. Measures that mitigate tornado-associated damage are likely to have high impact.
