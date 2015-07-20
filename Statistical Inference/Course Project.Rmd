@@ -8,8 +8,9 @@ output: html_document
 
 ## Part 1: Exponential distribution simulation
 
-The following code will do 1000 simulations of random exponential distribution with lambda = 0.2
+The following code will do 1000 simulations of random exponential distribution with lambda = 0.2 and 40 observations. It will then get the means and variances of those 1000 simulations.
 ```{r}
+set.seed(100)
 sim <- 1000
 means = NULL
 vars = NULL
