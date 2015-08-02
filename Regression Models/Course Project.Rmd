@@ -1,0 +1,42 @@
+---
+title: "Regression Analysis - Comparing the Mileage of Auto vs. Manual Transmission"
+output: html_document
+---
+
+### Author: Edward Lau
+
+###Executive Summary: 
+As a magazine about the automobile industry, Motor Trends would like to compare the gas mileage between vehicles of automatic vs. manual transmission. The following analysis will attempt to answer the following questions:
+(1) Is an automatic or manual transmission better for MPG
+(2) Quantify the MPG difference between automatic and manual transmissions.
+
+Based on regression modeling, my conclusion is that based on the data there is no significant relationship between transmission and gas mileage once you adjust for car weight and car horsepower.
+
+### Methods:
+My first step is to load the mtcars dataset and understand the variable. Gas mileage is calculated as miles per gallon in the variable column mpg. Transmission is recorded as a factor in the column am (0 = auto; 1 = manual) The following code will conduct some basic exploratory analysis of the dataset. 
+
+```{r}
+data(mtcars)
+par(mfrow=c(2,5)); plot(mpg ~., data=mtcars)
+```
+This exploratory analysis reveals that many variables may have an effect on mpg. Certainly transmission appear to have an effect on MPG - the am = 0 (AUTO) group appears to have lower mpg than the am = 1 (MANUAL) group.
+```{r}
+comp <- t.test(mtcars[which(mtcars$am == 0), "mpg"], mtcars[which(mtcars$am == 1), "mpg"])
+```
+Where automatic transmission cars have average `mpg` of `r mean(mtcars[which(mtcars$am == 0), "mpg"])` and those of manual transmission `r mean(mtcars[which(mtcars$am == 1), "mpg"])` with significant difference (p value = `r round(comp$p.value,3)`).
+
+Here's a simple linear regression model that compares `mpg` by `am`:
+```{r}
+fit <- lm(mpg ~ factor(am), data = mtcars); summary(fit)
+```
+Clearly this model suggests that `factor(am)` is a linear predictor of `mpg`. Changing from automatic transmission to manual transmission is estimated to increase `mpg` by 7.2 miles per gallon. This relationship is highly significant. 
+
+However, as we see, other variables also appear correlated to `mpg`, including `cyl`, `hp`, `disp`, `wt`, `carb` and so on, and may confound the above result and should be adjusted for. Based on my limited knowledge of cars (Motor Trends may have only hired me because of my good looks), I suppose weight and horsepower may determine `mpg` and who knows if heavier cars are more likely to be automatic? Therefore I used the following multivariate regression model:
+```{r}
+fit2 <- lm(mpg ~ factor(am) + hp + wt, data = mtcars); summary(fit2)
+```
+It looks like when you try to adjust for `hp` and `wt` the relationship between manual/auto and MPG is no longer significant, although this result still suggests that when switching to manual, you gain an estimated 2.08 miles per gallon (but with a standard error of 1.37, meaning the range would be `r 2.08 + c(-1,1) * pt(0.975, df = fit2$df)*1.37`). All in all however, it looks like `hp` and `wt` had much higher contributions to `mpg`. Let's run some diagnostic plots on the result:
+```{r}
+par(mfrow=c(2,2)); plot(fit2)
+```
+I think I am buying a Corolla.
