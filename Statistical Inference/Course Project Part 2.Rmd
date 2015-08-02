@@ -1,5 +1,5 @@
 ---
-output: word_document
+output: pdf_document
 ---
 ---
 output: html_document

@@ -1,5 +1,5 @@
 ---
-output: word_document
+output: pdf_document
 ---
 # Simulation Exercise for the Exponential Distribution
 ## Author: Edward Lau
